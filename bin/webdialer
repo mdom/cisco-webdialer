@@ -1,0 +1,96 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use SOAP::Lite;
+#use SOAP::Lite +trace => 'debug';
+use Passwd::Keyring::Gnome;
+use POSIX 'dup2';
+
+my $destination = shift;
+$destination =~ s/^tel://;
+
+my $url      = 'https://example.org/';
+
+my $keyring = Passwd::Keyring::Gnome->new(
+    app   => "Webdialer",
+    group => "default",
+);
+
+my $realm = 'Cisco Webdialer';
+my $username = $ENV{USER};
+
+my $password = $keyring->get_password( $username, $realm );
+unless ($password) {
+    $password = get_password();
+    $keyring->set_password($username, $password, $realm );
+}
+
+my $soap = SOAP::Lite->new();
+
+$soap->proxy( "$url//webdialer/services/WebdialerSoapService70",
+    ssl_opts => [ SSL_verify_mode => 0 ] );
+$soap->service("$url/webdialer/wsdl/wd70.wsdl");
+
+$soap->readable(1);
+
+my $profile = $soap->getProfileDetailSoap(
+    SOAP::Data->name('in0')->type('urn:Credential')->value(
+        \SOAP::Data->value(
+            SOAP::Data->name( 'userID'   => $username ),
+            SOAP::Data->name( 'password' => $password ),
+        )
+    )
+)->result;
+
+my $device = $profile->{deviceInfoListDetail}->[0]->{deviceName};
+my $line = $profile->{deviceInfoListDetail}->[0]->{lines}->[0];
+
+use Data::Dumper;
+
+my $call = $soap->makeCallSoap(
+    SOAP::Data->name('in0')->type('urn:Credential')->value(
+        \SOAP::Data->value(
+            SOAP::Data->name( 'userID'   => $username ),
+            SOAP::Data->name( 'password' => $password ),
+        )
+    ),
+    SOAP::Data->name('in1')->type('xsd:string')->value($destination),
+    SOAP::Data->name('in2')->type('urn:UserProfile')->value(
+        \SOAP::Data->value(
+            SOAP::Data->name( 'user'   => $username ),
+            SOAP::Data->name( 'deviceName' => $device ),
+            SOAP::Data->name( 'lineNumber' => $line ),
+        )
+    ),
+
+);
+
+sub get_password {
+	pipe(my($child_reader, $parent_writer));
+	pipe(my($parent_reader, $child_writer));
+
+	my $pid = fork;
+	die "Can't fork: $!\n" if not defined $pid;
+	if ( $pid == 0 ) {
+		dup2(fileno $child_reader, 0);
+		dup2(fileno $child_writer, 1);
+		close($child_reader);	
+		close($child_writer);	
+		close($parent_writer);	
+		close($parent_reader);	
+		exec 'pinentry';
+	}
+	close($child_reader);
+	close($child_writer);
+	print {$parent_writer} "GETPIN\n";
+	close($parent_writer);
+
+	my @result = <$parent_reader>;
+	close($parent_reader);
+	waitpid $pid, 0;
+	if ( $result[1] =~ /D (.*)/) {
+		return $1
+	}
+	return;
+}
