@@ -33,15 +33,14 @@ $soap->proxy( "$url//webdialer/services/WebdialerSoapService70",
 
 $soap->readable(1);
 
-my $profile = $soap->call(
-    getProfileDetailSoap =>
-      SOAP::Data->name('in0')->type('urn:Credential')->value(
-        \SOAP::Data->value(
-            SOAP::Data->name( 'userID'   => $username ),
-            SOAP::Data->name( 'password' => $password ),
-        )
+my $auth = SOAP::Data->name('in0')->type('urn:Credential')->value(
+    \SOAP::Data->value(
+        SOAP::Data->name( 'userID'   => $username ),
+        SOAP::Data->name( 'password' => $password ),
     )
-)->result;
+);
+
+my $profile = $soap->call( getProfileDetailSoap => $auth )->result;
 
 my $device = $profile->{deviceInfoListDetail}->[0]->{deviceName};
 my $line = $profile->{deviceInfoListDetail}->[0]->{lines}->[0];
@@ -49,12 +48,7 @@ my $line = $profile->{deviceInfoListDetail}->[0]->{lines}->[0];
 use Data::Dumper;
 
 my $call = $soap->call(
-    makeCallSoap => SOAP::Data->name('in0')->type('urn:Credential')->value(
-        \SOAP::Data->value(
-            SOAP::Data->name( 'userID'   => $username ),
-            SOAP::Data->name( 'password' => $password ),
-        )
-    ),
+    makeCallSoap => $auth,
     SOAP::Data->name('in1')->type('xsd:string')->value($destination),
     SOAP::Data->name('in2')->type('urn:UserProfile')->value(
         \SOAP::Data->value(
@@ -64,7 +58,6 @@ my $call = $soap->call(
         )
     ),
 
-);
 
 sub get_password {
     my ( $username, $keyring ) = @_;
