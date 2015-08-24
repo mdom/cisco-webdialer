@@ -11,7 +11,7 @@ our $VERSION = '0.01';
 my $destination = shift;
 $destination =~ s/^tel://;
 
-my $url = 'https://example.org/';
+my $host = 'example.org';
 my ($app) = $0 =~ m{.*/(.*)$};
 
 my $keyring = Passwd::Keyring::Gnome->new(
@@ -28,7 +28,7 @@ unless ($password) {
 
 my $soap = SOAP::Lite->new();
 
-$soap->proxy( "$url//webdialer/services/WebdialerSoapService70",
+$soap->proxy( "https://$host//webdialer/services/WebdialerSoapService70",
     ssl_opts => [ SSL_verify_mode => 0 ] );
 
 my $auth = SOAP::Data->name('in0')->type('urn:Credential')->value(
