@@ -1,0 +1,13 @@
+Source: cisco-webdialer
+Section: perl
+Priority: optional
+Maintainer: Mario Domgoergen <mdom@taz.de>
+Build-Depends: debhelper (>= 8), perl
+Standards-Version: 3.9.2
+Homepage: http://search.cpan.org/dist/App-webdialer/
+
+Package: cisco-webdialer
+Architecture: all
+Depends: ${misc:Depends}, ${perl:Depends}, libpasswd-keyring-gnome-perl, libsoap-lite-perl, zenity
+Description: Make calls via the cisco webdialer api
+ webdialer uses the CISCO webdialer API to make call.

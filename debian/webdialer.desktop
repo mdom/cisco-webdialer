@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Webdialer
+Comment=Call number
+Exec=webdialer %u
+Icon=call-start
+Terminal=false
+NoDisplay=true
+Type=Application
+StartupNotify=false
+Categories=Network;
+MimeType=x-scheme-handler/tel;
