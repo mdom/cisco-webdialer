@@ -6,6 +6,8 @@ use SOAP::Lite;
 #use SOAP::Lite +trace => 'debug';
 use Passwd::Keyring::Gnome;
 
+our $VERSION = '0.01';
+
 my $destination = shift;
 $destination =~ s/^tel://;
 
