@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use SOAP::Lite;
 #use SOAP::Lite +trace => 'debug';
+use Storable qw(retrieve store);
 use Passwd::Keyring::Gnome;
 
 our $VERSION = '0.01';
@@ -40,12 +41,23 @@ my $auth = SOAP::Data->name('in0')->type('urn:Credential')->value(
     )
 );
 
-my $profile = $soap->call( getProfileDetailSoap => $auth )->result;
+my $cache_file = "$ENV{HOME}/.webdialer.cache";
 
-my $device = $profile->{deviceInfoListDetail}->[0]->{deviceName};
-my $line = $profile->{deviceInfoListDetail}->[0]->{lines}->[0];
+my $profile;
+if ( -e $cache_file && (stat(_))[9] > time-60*60*10 ) {
+    $profile = retrieve($cache_file);
+}
+else {
+    $profile = $soap->call( getProfileDetailSoap => $auth )->result;
+    my $rc = $profile->{responseCode};
+    if ( $rc == 0 ) {
+        store $profile, $cache_file;
+    }
+}
 
 use Data::Dumper;
+my $device = $profile->{deviceInfoListDetail}->[0]->{deviceName};
+my $line   = $profile->{deviceInfoListDetail}->[0]->{lines}->[0];
 
 my $call = $soap->call(
     makeCallSoap => $auth,
