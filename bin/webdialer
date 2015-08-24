@@ -30,12 +30,12 @@ my $soap = SOAP::Lite->new();
 
 $soap->proxy( "$url//webdialer/services/WebdialerSoapService70",
     ssl_opts => [ SSL_verify_mode => 0 ] );
-$soap->service("$url/webdialer/wsdl/wd70.wsdl");
 
 $soap->readable(1);
 
-my $profile = $soap->getProfileDetailSoap(
-    SOAP::Data->name('in0')->type('urn:Credential')->value(
+my $profile = $soap->call(
+    getProfileDetailSoap =>
+      SOAP::Data->name('in0')->type('urn:Credential')->value(
         \SOAP::Data->value(
             SOAP::Data->name( 'userID'   => $username ),
             SOAP::Data->name( 'password' => $password ),
@@ -48,8 +48,8 @@ my $line = $profile->{deviceInfoListDetail}->[0]->{lines}->[0];
 
 use Data::Dumper;
 
-my $call = $soap->makeCallSoap(
-    SOAP::Data->name('in0')->type('urn:Credential')->value(
+my $call = $soap->call(
+    makeCallSoap => SOAP::Data->name('in0')->type('urn:Credential')->value(
         \SOAP::Data->value(
             SOAP::Data->name( 'userID'   => $username ),
             SOAP::Data->name( 'password' => $password ),
