@@ -11,7 +11,7 @@ our $VERSION = '0.01';
 my $destination = shift;
 $destination =~ s/^tel://;
 
-my $url      = 'https://example.org/';
+my $url = 'https://example.org/';
 my ($app) = $0 =~ m{.*/(.*)$};
 
 my $keyring = Passwd::Keyring::Gnome->new(
@@ -41,7 +41,7 @@ my $auth = SOAP::Data->name('in0')->type('urn:Credential')->value(
 my $cache_file = "$ENV{HOME}/.webdialer.cache";
 
 my $profile;
-if ( -e $cache_file && (stat(_))[9] > time-60*60*10 ) {
+if ( -e $cache_file && ( stat(_) )[9] > time - 60 * 60 * 10 ) {
     $profile = retrieve($cache_file);
 }
 else {
@@ -65,7 +65,7 @@ my $call = $soap->call(
     SOAP::Data->name('in1')->type('xsd:string')->value($destination),
     SOAP::Data->name('in2')->type('urn:UserProfile')->value(
         \SOAP::Data->value(
-            SOAP::Data->name( 'user'   => $username ),
+            SOAP::Data->name( 'user'       => $username ),
             SOAP::Data->name( 'deviceName' => $device ),
             SOAP::Data->name( 'lineNumber' => $line ),
         )
@@ -77,7 +77,6 @@ if ( $call->{responseCode} == 2 ) {
         "Authentifizierungsfehler. Bitte nochmal probieren" );
     $keyring->clear_password( $username, $app );
 }
-
 
 sub get_password {
     my ( $username, $keyring ) = @_;
