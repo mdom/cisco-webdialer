@@ -53,6 +53,11 @@ else {
     if ( $rc == 0 ) {
         store $profile, $cache_file;
     }
+    elsif ( $rc == 1 ) {
+        system( qw(zenity --error --text),
+            "Authentifizierungsfehler. Bitte nochmal probieren" );
+        $keyring->clear_password( $username, $app );
+    }
 }
 
 use Data::Dumper;
@@ -69,6 +74,13 @@ my $call = $soap->call(
             SOAP::Data->name( 'lineNumber' => $line ),
         )
     ),
+)->result;
+
+if ( $call->{responseCode} == 2 ) {
+    system( qw(zenity --error --text),
+        "Authentifizierungsfehler. Bitte nochmal probieren" );
+    $keyring->clear_password( $username, $app );
+}
 
 
 sub get_password {
