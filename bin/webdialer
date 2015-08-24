@@ -5,7 +5,6 @@ use warnings;
 use SOAP::Lite;
 #use SOAP::Lite +trace => 'debug';
 use Passwd::Keyring::Gnome;
-use POSIX 'dup2';
 
 my $destination = shift;
 $destination =~ s/^tel://;
@@ -67,30 +66,13 @@ my $call = $soap->makeCallSoap(
 );
 
 sub get_password {
-	pipe(my($child_reader, $parent_writer));
-	pipe(my($parent_reader, $child_writer));
-
-	my $pid = fork;
-	die "Can't fork: $!\n" if not defined $pid;
-	if ( $pid == 0 ) {
-		dup2(fileno $child_reader, 0);
-		dup2(fileno $child_writer, 1);
-		close($child_reader);	
-		close($child_writer);	
-		close($parent_writer);	
-		close($parent_reader);	
-		exec 'pinentry';
-	}
-	close($child_reader);
-	close($child_writer);
-	print {$parent_writer} "GETPIN\n";
-	close($parent_writer);
-
-	my @result = <$parent_reader>;
-	close($parent_reader);
-	waitpid $pid, 0;
-	if ( $result[1] =~ /D (.*)/) {
-		return $1
-	}
-	return;
+    my ( $username, $keyring ) = @_;
+    my $password = qx(zenity --password --title "Password for Cisco Webdialer");
+    chomp($password);
+    my $rc = $? >> 8;
+    if ( $rc == 0 ) {
+        $keyring->set_password( $username, $password, $app );
+        return $password;
+    }
+    return;
 }
