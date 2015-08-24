@@ -13,8 +13,7 @@ my ($app) = $0 =~ m{.*/(.*)$};
 
 my %config;
 
-for my $config_file ( '/etc/$app.conf', "$ENV{HOME}/.$app.conf" )
-{
+for my $config_file ( '/etc/$app.conf', "$ENV{HOME}/.$app.conf" ) {
     if ( -e $config_file ) {
         my $config = Config::Tiny->read($config_file)->{_};
         die "Can't read config: $Config::Tiny::errstr\n"
@@ -55,7 +54,7 @@ my $auth = SOAP::Data->name('in0')->type('urn:Credential')->value(
     )
 );
 
-my $cache_file = "$ENV{HOME}/.webdialer.cache";
+my $cache_file = "$ENV{HOME}/.$app.cache";
 
 my $profile;
 if ( -e $cache_file && ( stat(_) )[9] > time - 60 * 60 * 10 ) {
