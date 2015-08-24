@@ -94,3 +94,49 @@ sub get_password {
     }
     return;
 }
+
+__END__
+
+=pod
+
+=head1 NAME
+
+webdialer - make calls via cisco webdialer api
+
+=head1 SYNOPSIS
+
+webdialer TEL_URL|NUMBER
+
+=head1 DESCRIPTION
+
+I<webdialer> uses the CISCO webdialer API to make call. Its first and only
+argument should be the telefon number to call. The optional scheme prefix
+I<tel:> is removed to make calls by end user applications easier.
+
+=head1 INSTALLATION
+
+The API expects the password of the user. I<webdialer> will prompt the user via
+zenity and saves the password in the GNOME Keyring. The following commands
+should install all the dependencies on Debian:
+
+  $ apt-get install gnome-keyring libgnome-keyring-dev zenity
+  $ cpanm Passwd::Keyring::Gnome
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2015 Mario Domgoergen C<< <mario@domgoergen.com> >>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+=cut
