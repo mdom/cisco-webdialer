@@ -5,14 +5,31 @@ use warnings;
 use SOAP::Lite;
 use Storable qw(retrieve store);
 use Passwd::Keyring::Gnome;
+use Config::Tiny;
 
 our $VERSION = '0.01';
+
+my ($app) = $0 =~ m{.*/(.*)$};
+
+my %config;
+
+for my $config_file ( '/etc/$app.conf', "$ENV{HOME}/.$app.conf" )
+{
+    if ( -e $config_file ) {
+        my $config = Config::Tiny->read($config_file)->{_};
+        die "Can't read config: $Config::Tiny::errstr\n"
+          if $Config::Tiny::errstr;
+        %config = ( %config, %$config );
+    }
+}
 
 my $destination = shift;
 $destination =~ s/^tel://;
 
-my $host = 'example.org';
-my ($app) = $0 =~ m{.*/(.*)$};
+my $host = $config{host};
+
+die "Parameter host needs to be set in config file\n"
+  if !$host;
 
 my $keyring = Passwd::Keyring::Gnome->new(
     app   => $app,
