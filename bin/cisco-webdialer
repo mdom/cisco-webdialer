@@ -63,14 +63,12 @@ if ( -e $cache_file && ( stat(_) )[9] > time - 60 * 60 * 10 ) {
 else {
     $profile = $soap->call( getProfileDetailSoap => $auth )->result;
     my $rc = $profile->{responseCode};
-    if ( $rc == 0 ) {
-        store $profile, $cache_file;
+    if ( $rc != 0 ) {
+        auth_error() if $rc == 1;
+        warning( $profile->{responseDescription} );
+	exit 1;
     }
-    elsif ( $rc == 1 ) {
-        system( qw(zenity --error --text),
-            "Authentifizierungsfehler. Bitte nochmal probieren" );
-        $keyring->clear_password( $username, $app );
-    }
+    store $profile, $cache_file;
 }
 
 my $device = $profile->{deviceInfoListDetail}->[0]->{deviceName};
@@ -88,10 +86,12 @@ my $call = $soap->call(
     ),
 )->result;
 
-if ( $call->{responseCode} == 2 ) {
-    system( qw(zenity --error --text),
-        "Authentifizierungsfehler. Bitte nochmal probieren" );
-    $keyring->clear_password( $username, $app );
+my $rc = $profile->{responseCode};
+
+if ( $rc != 0 ) {
+    auth_error() if $rc == 2;
+    warning( $profile->{responseDescription} );
+    exit 1;
 }
 
 sub get_password {
@@ -100,10 +100,17 @@ sub get_password {
     chomp($password);
     my $rc = $? >> 8;
     if ( $rc == 0 ) {
-        $keyring->set_password( $username, $password, $app );
         return $password;
     }
     return;
+}
+
+sub auth_error {
+    $keyring->clear_password( $username, $app );
+}
+
+sub warning {
+    system( 'zenity', '--warning', '--text', $_[0] );
 }
 
 __END__
