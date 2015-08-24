@@ -3,7 +3,6 @@
 use strict;
 use warnings;
 use SOAP::Lite;
-#use SOAP::Lite +trace => 'debug';
 use Storable qw(retrieve store);
 use Passwd::Keyring::Gnome;
 
@@ -32,8 +31,6 @@ my $soap = SOAP::Lite->new();
 $soap->proxy( "$url//webdialer/services/WebdialerSoapService70",
     ssl_opts => [ SSL_verify_mode => 0 ] );
 
-$soap->readable(1);
-
 my $auth = SOAP::Data->name('in0')->type('urn:Credential')->value(
     \SOAP::Data->value(
         SOAP::Data->name( 'userID'   => $username ),
@@ -60,7 +57,6 @@ else {
     }
 }
 
-use Data::Dumper;
 my $device = $profile->{deviceInfoListDetail}->[0]->{deviceName};
 my $line   = $profile->{deviceInfoListDetail}->[0]->{lines}->[0];
 
