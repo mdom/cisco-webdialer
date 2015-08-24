@@ -12,19 +12,18 @@ my $destination = shift;
 $destination =~ s/^tel://;
 
 my $url      = 'https://example.org/';
+my ($app) = $0 =~ m{.*/(.*)$};
 
 my $keyring = Passwd::Keyring::Gnome->new(
-    app   => "Webdialer",
+    app   => $app,
     group => "default",
 );
 
-my $realm = 'Cisco Webdialer';
 my $username = $ENV{USER};
 
-my $password = $keyring->get_password( $username, $realm );
+my $password = $keyring->get_password( $username, $app );
 unless ($password) {
-    $password = get_password();
-    $keyring->set_password($username, $password, $realm );
+    $password = get_password( $username, $keyring, $app );
 }
 
 my $soap = SOAP::Lite->new();
