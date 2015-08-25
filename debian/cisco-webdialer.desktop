@@ -1,7 +1,7 @@
 [Desktop Entry]
-Name=Webdialer
+Name=Cisco-Webdialer
 Comment=Call number
-Exec=webdialer %u
+Exec=cisco-webdialer %u
 Icon=call-start
 Terminal=false
 NoDisplay=true
