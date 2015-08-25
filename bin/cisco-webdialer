@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 
+use 5.010;
 use strict;
 use warnings;
 use SOAP::Lite;
@@ -29,6 +30,13 @@ my $host = $config{host};
 
 die "Parameter host needs to be set in config file\n"
   if !$host;
+
+my $dial_prefix      = $config{dial_prefix}      // '0';
+my $max_internal_len = $config{max_internal_len} // 3;
+
+if ( length($destination) > $max_internal_len ) {
+	$destination = $dial_prefix . $destination;
+}
 
 my $keyring = Passwd::Keyring::Gnome->new(
     app   => $app,
