@@ -14,7 +14,7 @@ my ($app) = $0 =~ m{.*/(.*)$};
 
 my %config;
 
-for my $config_file ( '/etc/$app.conf', "$ENV{HOME}/.$app.conf" ) {
+for my $config_file ( "/etc/$app.conf", "$ENV{HOME}/.$app.conf" ) {
     if ( -e $config_file ) {
         my $config = Config::Tiny->read($config_file)->{_};
         die "Can't read config: $Config::Tiny::errstr\n"
