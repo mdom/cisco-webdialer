@@ -96,7 +96,10 @@ my $call = $soap->call(
 
 my $rc = $profile->{responseCode};
 
-if ( $rc != 0 ) {
+if ( $rc == 0 ) {
+    $keyring->set_password( $username, $password, $app );
+}
+else {
     auth_error() if $rc == 2;
     warning( $profile->{responseDescription} );
     exit 1;
