@@ -66,8 +66,7 @@ unless ($password) {
 
 my $soap = SOAP::Lite->new();
 
-$soap->proxy( "https://$host//webdialer/services/WebdialerSoapService70",
-    ssl_opts => [ SSL_verify_mode => 0 ] );
+$soap->proxy( "https://$host//webdialer/services/WebdialerSoapService70" );
 
 my $auth = SOAP::Data->name('in0')->type('urn:Credential')->value(
     \SOAP::Data->value(
