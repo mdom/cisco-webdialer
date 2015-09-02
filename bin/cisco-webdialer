@@ -7,10 +7,14 @@ use SOAP::Lite;
 use Storable qw(retrieve store);
 use Passwd::Keyring::Gnome;
 use Config::Tiny;
+use Getopt::Long;
 
 our $VERSION = '0.01';
 
 my ($app) = $0 =~ m{.*/(.*)$};
+
+my %options;
+GetOptions( \%options, 'host=s' );
 
 my %config;
 
@@ -22,6 +26,8 @@ for my $config_file ( "/etc/$app.conf", "$ENV{HOME}/.$app.conf" ) {
         %config = ( %config, %$config );
     }
 }
+
+%config = ( %config, %options );
 
 my $destination = shift;
 $destination =~ s/^tel://;
