@@ -3,7 +3,6 @@
 use 5.010;
 use strict;
 use warnings;
-use SOAP::Lite;
 use Storable qw(retrieve store);
 use Passwd::Keyring::Gnome;
 use Config::Tiny;
@@ -14,7 +13,7 @@ our $VERSION = '0.01';
 my ($app) = $0 =~ m{.*/(.*)$};
 
 my %options;
-GetOptions( \%options, 'host=s' );
+GetOptions( \%options, 'host=s', 'debug!' );
 
 my %config;
 
@@ -28,6 +27,15 @@ for my $config_file ( "/etc/$app.conf", "$ENV{HOME}/.$app.conf" ) {
 }
 
 %config = ( %config, %options );
+
+require SOAP::Lite;
+if ( $config{debug} ) {
+    SOAP::Lite->import( +trace => [ debug => \&process_trace ] );
+}
+else {
+    SOAP::Lite->import();
+}
+
 
 my $destination = shift;
 $destination =~ s/^tel://;
@@ -128,6 +136,12 @@ sub auth_error {
 
 sub warning {
     system( 'zenity', '--warning', '--text', $_[0] );
+}
+
+sub process_trace {
+    my ($trace) = @_;
+    $trace =~ s{(<password .*?>).*?(</password>)}{$1*****$2}g;
+    warn "$trace\n";
 }
 
 __END__
