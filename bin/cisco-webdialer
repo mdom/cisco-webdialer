@@ -120,6 +120,8 @@ else {
     exit 1;
 }
 
+exit 0
+
 sub store_profile {
     my ( $soap, $auth, $cache_file ) = @_;
     $profile = $soap->call( getProfileDetailSoap => $auth )->result;
