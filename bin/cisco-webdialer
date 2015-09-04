@@ -14,7 +14,7 @@ our $VERSION = '0.01';
 my ($app) = $0 =~ m{.*/(.*)$};
 
 my %options;
-GetOptions( \%options, 'host=s', 'debug!', ) or pod2usage(2);
+GetOptions( \%options, 'host=s', 'debug!', 'init!' ) or pod2usage(2);
 
 my %config;
 
@@ -37,19 +37,14 @@ else {
     SOAP::Lite->import();
 }
 
-my $destination = shift;
-pod2usage( -msg => "Missing phone number." ) unless $destination;
-$destination =~ s/^tel://;
-
 my $host = $config{host};
 pod2usage( -msg => "Missing host." ) unless $host;
 
 my $dial_prefix      = $config{dial_prefix}      // '0';
 my $max_internal_len = $config{max_internal_len} // 3;
 
-if ( length($destination) > $max_internal_len ) {
-	$destination = $dial_prefix . $destination;
-}
+my $soap = SOAP::Lite->new();
+$soap->proxy( "https://$host//webdialer/services/WebdialerSoapService70" );
 
 my $keyring = Passwd::Keyring::Gnome->new(
     app   => $app,
@@ -59,20 +54,35 @@ my $keyring = Passwd::Keyring::Gnome->new(
 my $username = $ENV{USER};
 
 my $password = $keyring->get_password( $username, $app );
+
+my $cache_file = "$ENV{HOME}/.$app.cache";
+
+if ( $password and $options{init} ) {
+    my $auth = build_auth_data( $username, $password );
+    my $profile = store_profile($soap,$auth,$cache_file);
+    my $rc = $profile->{responseCode};
+    if ( $rc != 0 ) {
+        die "$app: ", $profile->{responseDescription}, "\n";
+    }
+    exit 0;
+}
+
 unless ($password) {
     $password = get_password( $username, $keyring, $app );
 }
 
-my $soap = SOAP::Lite->new();
+my $destination = shift;
+pod2usage( -msg => "Missing phone number." ) unless $destination;
+$destination =~ s/^tel://;
 
-$soap->proxy( "https://$host//webdialer/services/WebdialerSoapService70" );
-
-my $cache_file = "$ENV{HOME}/.$app.cache";
+if ( length($destination) > $max_internal_len ) {
+	$destination = $dial_prefix . $destination;
+}
 
 my $auth = build_auth_data( $username, $password );
 
 my $profile;
-if ( -e $cache_file && ( stat(_) )[9] > time - 60 * 60 * 10 ) {
+if ( -e $cache_file ) { 
     $profile = retrieve($cache_file);
 }
 else {
