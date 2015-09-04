@@ -200,6 +200,13 @@ Enables the debug trace option of SOAP::Lite. All http traffic sent to
 and received by the cisco server will be printed to stderr. Special care
 is given to hide the password.
 
+=item --init
+
+The first time you call I<cisco-webdialer>, it gets your profile details
+and caches them. Call --init if you want to refresh them. This only
+works if your password is already set as it is mainly intended to run
+at startup without user interaction.
+
 =back
 
 =head1 INSTALLATION
