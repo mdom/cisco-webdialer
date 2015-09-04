@@ -67,14 +67,9 @@ my $soap = SOAP::Lite->new();
 
 $soap->proxy( "https://$host//webdialer/services/WebdialerSoapService70" );
 
-my $auth = SOAP::Data->name('in0')->type('urn:Credential')->value(
-    \SOAP::Data->value(
-        SOAP::Data->name( 'userID'   => $username ),
-        SOAP::Data->name( 'password' => $password ),
-    )
-);
-
 my $cache_file = "$ENV{HOME}/.$app.cache";
+
+my $auth = build_auth_data( $username, $password );
 
 my $profile;
 if ( -e $cache_file && ( stat(_) )[9] > time - 60 * 60 * 10 ) {
@@ -115,6 +110,16 @@ else {
     auth_error() if $rc == 2;
     warning( $call->{responseDescription} );
     exit 1;
+}
+
+sub build_auth_data {
+    my ( $username, $password ) = @_;
+    return SOAP::Data->name('in0')->type('urn:Credential')->value(
+        \SOAP::Data->value(
+            SOAP::Data->name( 'userID'   => $username ),
+            SOAP::Data->name( 'password' => $password ),
+        )
+    );
 }
 
 sub get_password {
