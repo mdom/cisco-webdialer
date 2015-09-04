@@ -7,13 +7,14 @@ use Storable qw(retrieve store);
 use Passwd::Keyring::Gnome;
 use Config::Tiny;
 use Getopt::Long;
+use Pod::Usage;
 
 our $VERSION = '0.01';
 
 my ($app) = $0 =~ m{.*/(.*)$};
 
 my %options;
-GetOptions( \%options, 'host=s', 'debug!' );
+GetOptions( \%options, 'host=s', 'debug!', ) or pod2usage(2);
 
 my %config;
 
@@ -36,14 +37,12 @@ else {
     SOAP::Lite->import();
 }
 
-
 my $destination = shift;
+pod2usage( -msg => "Missing phone number." ) unless $destination;
 $destination =~ s/^tel://;
 
 my $host = $config{host};
-
-die "Parameter host needs to be set in config file\n"
-  if !$host;
+pod2usage( -msg => "Missing host." ) unless $host;
 
 my $dial_prefix      = $config{dial_prefix}      // '0';
 my $max_internal_len = $config{max_internal_len} // 3;
