@@ -153,13 +153,29 @@ webdialer - make calls via cisco webdialer api
 
 =head1 SYNOPSIS
 
-webdialer TEL_URL|NUMBER
+webdialer [ --host HOST ] [ --debug ] TEL_URL|NUMBER
 
 =head1 DESCRIPTION
 
 I<webdialer> uses the CISCO webdialer API to make call. Its first and only
 argument should be the telefon number to call. The optional scheme prefix
 I<tel:> is removed to make calls by end user applications easier.
+
+=head1 OPTIONS
+
+=over 4
+
+=item --host HOSTNAME
+
+The hostname of the cisco server.
+
+=item --debug
+
+Enables the debug trace option of SOAP::Lite. All http traffic sent to
+and received by the cisco server will be printed to stderr. Special care
+is given to hide the password.
+
+=back
 
 =head1 INSTALLATION
 
