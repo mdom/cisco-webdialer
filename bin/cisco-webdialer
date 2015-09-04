@@ -76,14 +76,12 @@ if ( -e $cache_file && ( stat(_) )[9] > time - 60 * 60 * 10 ) {
     $profile = retrieve($cache_file);
 }
 else {
-    $profile = $soap->call( getProfileDetailSoap => $auth )->result;
+    $profile = store_profile($soap,$auth,$cache_file);
     my $rc = $profile->{responseCode};
     if ( $rc != 0 ) {
-        auth_error() if $rc == 1;
         warning( $profile->{responseDescription} );
 	exit 1;
     }
-    store $profile, $cache_file;
 }
 
 my $device = $profile->{deviceInfoListDetail}->[0]->{deviceName};
@@ -110,6 +108,19 @@ else {
     auth_error() if $rc == 2;
     warning( $call->{responseDescription} );
     exit 1;
+}
+
+sub store_profile {
+    my ( $soap, $auth, $cache_file ) = @_;
+    $profile = $soap->call( getProfileDetailSoap => $auth )->result;
+    my $rc = $profile->{responseCode};
+    if ( $rc != 0 ) {
+        auth_error() if $rc == 1;
+    }
+    else {
+        store $profile, $cache_file;
+    }
+    return $profile;
 }
 
 sub build_auth_data {
