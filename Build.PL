@@ -16,7 +16,7 @@ my %module_build_args = (
     },
     requires => {
         'SOAP::Lite'             => 0,
-        'Passwd::Keyring::Gnome' => 0,
+        'Passwd::Keyring::Auto'  => 0,
     },
     test_requires => {},
 );

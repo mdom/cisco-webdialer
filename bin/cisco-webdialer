@@ -4,7 +4,7 @@ use 5.010;
 use strict;
 use warnings;
 use Storable qw(retrieve store);
-use Passwd::Keyring::Gnome;
+use Passwd::Keyring::Auto qw(get_keyring);
 use Config::Tiny;
 use Getopt::Long;
 use Pod::Usage;
@@ -46,7 +46,7 @@ my $max_internal_len = $config{max_internal_len} // 3;
 my $soap = SOAP::Lite->new();
 $soap->proxy( "https://$host//webdialer/services/WebdialerSoapService70" );
 
-my $keyring = Passwd::Keyring::Gnome->new(
+my $keyring = get_keyring(
     app   => $app,
     group => "default",
 );
