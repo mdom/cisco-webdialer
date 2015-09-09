@@ -75,6 +75,7 @@ my $destination = shift;
 pod2usage( -msg => "Missing phone number." ) unless $destination;
 $destination =~ s/^tel://;
 $destination =~ s/\s//g;
+$destination =~ s/^\+/00/;
 
 if ( length($destination) > $max_internal_len ) {
 	$destination = $dial_prefix . $destination;
