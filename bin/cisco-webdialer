@@ -74,6 +74,7 @@ unless ($password) {
 my $destination = shift;
 pod2usage( -msg => "Missing phone number." ) unless $destination;
 $destination =~ s/^tel://;
+$destination =~ s/\s//g;
 
 if ( length($destination) > $max_internal_len ) {
 	$destination = $dial_prefix . $destination;
