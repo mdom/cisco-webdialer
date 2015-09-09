@@ -73,6 +73,7 @@ unless ($password) {
 
 my $destination = shift;
 pod2usage( -msg => "Missing phone number." ) unless $destination;
+
 $destination =~ s/^tel://;
 $destination =~ s/\s//g;
 $destination =~ s/^\+/00/;
